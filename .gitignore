@@ -1,0 +1,20 @@
+# --- Keep Stock Web ---
+
+# Ambiente virtual
+venv/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Variáveis de ambiente
+*.env
+
+# --- Mobile ---
+
+# Dependências
+node_modules/
+
+# Expo
+.expo/
