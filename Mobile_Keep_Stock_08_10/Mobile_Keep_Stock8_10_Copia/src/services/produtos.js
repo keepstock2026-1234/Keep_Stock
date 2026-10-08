@@ -32,7 +32,7 @@ export function montarProduto(dados) {
   };
 }
 
-// Espelha Produto.validate()
+// validações gerais de produto
 export function validarProduto(produto) {
   const erros = [
     Validator.required(produto.nome, 'nome'),
@@ -69,17 +69,12 @@ export async function buscarProduto(id) {
 // Busca pelo conteúdo lido do QR Code: o id do produto ou o nome cadastrado
 export async function buscarProdutoPorCodigo(codigo) {
   const termo = String(codigo || '').trim();
-
   if (!termo) return null;
-
   if (/^\d+$/.test(termo)) {
     const porId = await produtosCrud.findById(Number(termo));
-
     if (porId) return porId;
   }
-
   const produtos = await produtosCrud.findAll('nome');
-
   return (
     produtos.find(
       (produto) => (produto.nome || '').toLowerCase() === termo.toLowerCase()
@@ -90,51 +85,37 @@ export async function buscarProdutoPorCodigo(codigo) {
 export async function salvarProduto(dados, imagem = null) {
   const produto = montarProduto(dados);
   let imagemEnviada = null;
-
   try {
     imagemEnviada = imagem ? await uploadImagem(imagem) : null;
     produto.imagem_url = imagemEnviada;
-
     const erros = validarProduto(produto);
-
     if (erros.length) throw new Error(erros.join(' '));
-
     return await produtosCrud.insert(produto);
   } catch (erro) {
     // Não deixa imagem órfã no Storage quando o cadastro falha
     if (imagemEnviada) await deletarImagem(imagemEnviada);
-
     throw erro;
   }
 }
 
 export async function atualizarProduto(id, dados, imagem = null) {
   const produtoAtual = await produtosCrud.findById(id);
-
   if (!produtoAtual) throw new Error('Produto não encontrado.');
-
   const produto = montarProduto(dados);
   produto.imagem_url = produtoAtual.imagem_url;
-
   let novaImagem = null;
-
   try {
     if (imagem) {
       novaImagem = await uploadImagem(imagem);
       produto.imagem_url = novaImagem;
     }
-
     const erros = validarProduto(produto);
-
     if (erros.length) throw new Error(erros.join(' '));
-
     const atualizado = await produtosCrud.update(id, produto);
-
     // A imagem antiga só sai depois que a atualização deu certo
     if (novaImagem && produtoAtual.imagem_url) {
       await deletarImagem(produtoAtual.imagem_url);
     }
-
     return atualizado;
   } catch (erro) {
     if (novaImagem) await deletarImagem(novaImagem);
@@ -151,7 +132,6 @@ export async function produtoPossuiVinculos(id) {
 
       if (vinculados > 0) return true;
     }
-
     return false;
   } catch (erro) {
     console.log(`Erro ao verificar registros relacionados: ${erro}`);
@@ -162,29 +142,21 @@ export async function produtoPossuiVinculos(id) {
 // Espelha Produto.safe_delete()
 export async function excluirProduto(id) {
   const produto = await produtosCrud.findById(id);
-
   if (!produto) throw new Error('Produto não encontrado.');
-
   if (await produtoPossuiVinculos(id)) {
     throw new Error(
       'Não é possível excluir o produto porque possui tabelas vinculadas.'
     );
   }
-
   await produtosCrud.delete(id);
-
   if (produto.imagem_url) await deletarImagem(produto.imagem_url);
 }
 
 // Soma o valor a quantidade_atual do produto (espelha ajustar_estoque_produto)
 export async function ajustarEstoqueProduto(idProduto, delta) {
   if (!idProduto || !delta) return;
-
   const produto = await produtosCrud.findById(idProduto);
-
   if (!produto) return;
-
   const atual = produto.quantidade_atual || 0;
-
   await produtosCrud.update(idProduto, { quantidade_atual: atual + delta });
 }

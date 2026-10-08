@@ -13,41 +13,36 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-
 import QRCodeScannerModal from '../src/components/QRCodeScannerModal';
 import Seletor from '../src/components/Seletor';
 import { buscarProdutoPorCodigo, listarProdutos } from '../src/services/produtos';
 import { salvarEntrada } from '../src/services/movimentacoes';
 import { usuarioLogado } from '../src/services/usuarios';
 
+
 export default function EntryScreen() {
   const [produtos, setProdutos] = useState([]);
   const [idProduto, setIdProduto] = useState('');
-
-  const [quantity, setQuantity] =
-    useState('');
-
+  const [quantity, setQuantity] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [scannerAberto, setScannerAberto] = useState(false);
 
-  // Disparada assim que o QR Code é lido pela câmera
+  //QR Code para registrar entrada de produtos
   async function lerQRCode(codigo) {
     setScannerAberto(false);
-
     try {
       const encontrado = await buscarProdutoPorCodigo(codigo);
-
       if (!encontrado) {
         Alert.alert('Erro', 'Produto não encontrado no banco.');
         return;
       }
-
       setIdProduto(encontrado.id_produto);
     } catch (erro) {
       Alert.alert('Erro', erro.message);
     }
   }
 
+  // Carrega a lista de produtos ao abrir o formulário
   const carregar = useCallback(async () => {
     try {
       setProdutos(await listarProdutos());
@@ -56,6 +51,7 @@ export default function EntryScreen() {
     }
   }, []);
 
+  // Atualiza a lista de produtos sempre que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       carregar();
@@ -65,31 +61,28 @@ export default function EntryScreen() {
   const produto = produtos.find(
     (item) => String(item.id_produto) === String(idProduto)
   );
-
   const estoqueAtual = produto ? produto.quantidade_atual || 0 : 0;
-
   async function confirmarEntrada() {
+    {/*Verifica se o produto foi selecionado */}
     if (!produto) {
       Alert.alert('Selecione o produto', 'Toque no card para escolher o produto.');
       return;
     }
 
-    setSalvando(true);
+    {/*Salva info. e da print */}
 
+    setSalvando(true);
     try {
       const usuario = await usuarioLogado();
-
       await salvarEntrada({
         id_produto: produto.id_produto,
         quantidade: quantity,
         id_usuario: usuario ? usuario.id : null,
       });
-
       Alert.alert(
         'Entrada registrada',
         `${quantity} un. de ${produto.nome} somadas ao estoque.`
       );
-
       setQuantity('');
       await carregar();
     } catch (erro) {
@@ -98,6 +91,11 @@ export default function EntryScreen() {
       setSalvando(false);
     }
   }
+
+
+
+
+
 
   return (
     <ScrollView
@@ -110,7 +108,6 @@ export default function EntryScreen() {
         <Text style={styles.title}>
           Entrada de Estoque
         </Text>
-
         <Text style={styles.subtitle}>
           Registre produtos rapidamente
         </Text>
@@ -128,18 +125,15 @@ export default function EntryScreen() {
             size={32}
             color="#fff"
           />
-
           <View>
             <Text style={styles.qrTitle}>
               Ler QR Code
             </Text>
-
             <Text style={styles.qrSubtitle}>
               Escanear produto
             </Text>
           </View>
         </View>
-
         <Ionicons
           name="chevron-forward"
           size={22}
@@ -147,12 +141,11 @@ export default function EntryScreen() {
         />
       </TouchableOpacity>
 
-      {/* PRODUTO */}
+      {/* Seleciona o produto */}
 
       <Text style={styles.sectionTitle}>
         Produto Encontrado
       </Text>
-
       <Seletor
         valor={idProduto}
         opcoes={produtos.map((item) => ({
@@ -173,21 +166,17 @@ export default function EntryScreen() {
                 color="#3B82F6"
               />
             </View>
-
             <View style={{ flex: 1 }}>
               <Text style={styles.productName}>
                 {produto ? produto.nome : 'Selecione o produto'}
               </Text>
-
               <Text style={styles.productCode}>
                 Código: {produto ? produto.id_produto : '-'}
               </Text>
-
               <Text style={styles.productStock}>
                 Estoque Atual: {estoqueAtual}
               </Text>
             </View>
-
             <Ionicons
               name="chevron-down"
               size={22}
@@ -197,12 +186,13 @@ export default function EntryScreen() {
         )}
       />
 
+
+
       {/* QUANTIDADE */}
 
       <Text style={styles.sectionTitle}>
         Quantidade
       </Text>
-
       <TextInput
         style={styles.input}
         placeholder="Digite a quantidade"
@@ -212,38 +202,32 @@ export default function EntryScreen() {
         onChangeText={setQuantity}
       />
 
-      {/* RESUMO */}
+      {/* Visualização de informações finais */}
 
       <View style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>
           Resumo da Entrada
         </Text>
-
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>
             Produto
           </Text>
-
           <Text style={styles.summaryValue}>
             {produto ? produto.nome : '-'}
           </Text>
         </View>
-
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>
             Quantidade
           </Text>
-
           <Text style={styles.summaryValue}>
             {quantity || 0}
           </Text>
         </View>
-
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>
             Estoque Final
           </Text>
-
           <Text style={styles.summaryValueGreen}>
             {estoqueAtual + Number(quantity || 0)}
           </Text>
@@ -273,9 +257,7 @@ export default function EntryScreen() {
           </>
         )}
       </TouchableOpacity>
-
       <View style={{ height: 40 }} />
-
       <QRCodeScannerModal
         visible={scannerAberto}
         onClose={() => setScannerAberto(false)}
@@ -284,6 +266,10 @@ export default function EntryScreen() {
     </ScrollView>
   );
 }
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {

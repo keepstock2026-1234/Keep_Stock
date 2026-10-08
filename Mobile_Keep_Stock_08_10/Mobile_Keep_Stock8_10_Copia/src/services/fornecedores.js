@@ -25,8 +25,11 @@ export function validarFornecedor(fornecedor) {
     Validator.required(fornecedor.nome, 'nome'),
     Validator.required(fornecedor.cnpj, 'cnpj'),
     Validator.required(fornecedor.telefone, 'telefone'),
+    Validator.telefone(fornecedor.telefone, 'telefone'),
     Validator.required(fornecedor.email, 'email'),
+    Validator.email(fornecedor.email, 'email'),
     Validator.required(fornecedor.cep, 'cep'),
+    Validator.cep(fornecedor.cep, 'cep'),
   ];
 
   return erros.filter(Boolean);

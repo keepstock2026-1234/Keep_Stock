@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 import Seletor from './Seletor';
+import { Validator } from '../services/validator';
 
 // Formulário de cadastro e edição, equivalente aos modais do sistema web
 export default function ModalFormulario({
@@ -43,11 +44,41 @@ export default function ModalFormulario({
     setErro('');
   }, [visivel, registro]);
 
+  function validarFormulario() {
+    for (const campo of campos) {
+      const valor = valores[campo.nome];
+      const nomeCampo = (campo.rotulo || campo.nome).toLowerCase();
+
+      if (campo.nome === 'telefone') {
+        const mensagem = Validator.telefone(valor, nomeCampo);
+        if (mensagem) return mensagem;
+      }
+
+      if (campo.nome === 'email') {
+        const mensagem = Validator.email(valor, nomeCampo);
+        if (mensagem) return mensagem;
+      }
+
+      if (campo.nome === 'cep' || campo.nome === 'codigo_postal') {
+        const mensagem = Validator.cep(valor, nomeCampo);
+        if (mensagem) return mensagem;
+      }
+    }
+
+    return '';
+  }
+
   async function salvar() {
     setSalvando(true);
     setErro('');
 
     try {
+      const mensagem = validarFormulario();
+      if (mensagem) {
+        setErro(mensagem);
+        return;
+      }
+
       await onSalvar(valores);
       onFechar();
     } catch (e) {

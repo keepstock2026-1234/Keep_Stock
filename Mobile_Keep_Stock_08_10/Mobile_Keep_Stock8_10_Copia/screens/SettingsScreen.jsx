@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Switch,
   Image,
+  Modal,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,7 @@ export default function SettingsScreen({navigation}) {
 
   const [usuario, setUsuario] = useState(null);
   const [modalSenha, setModalSenha] = useState(false);
+  const [confirmacaoSair, setConfirmacaoSair] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -59,25 +61,18 @@ export default function SettingsScreen({navigation}) {
     Alert.alert('Senha alterada', 'Sua senha foi atualizada com sucesso.');
   }
 
-  function confirmarSaida() {
-    Alert.alert(
-      'Sair da conta',
-      'Deseja encerrar a sessão?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
+  async function executarLogout() {
+    await logout();
 
-            // Login fica no Stack acima do Drawer
-            const raiz = navigation.getParent() || navigation;
-            raiz.reset({ index: 0, routes: [{ name: 'Login' }] });
-          },
-        },
-      ]
-    );
+    const raiz = navigation.getParent()?.getParent() || navigation.getParent() || navigation;
+    raiz.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+  }
+
+  function confirmarSaida() {
+    setConfirmacaoSair(true);
   }
 
   return (
@@ -273,6 +268,49 @@ export default function SettingsScreen({navigation}) {
           Sair da Conta
         </Text>
       </TouchableOpacity>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={confirmacaoSair}
+        onRequestClose={() => setConfirmacaoSair(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconContainer}>
+              <Ionicons
+                name="log-out-outline"
+                size={32}
+                color="#fff"
+              />
+            </View>
+
+            <Text style={styles.modalTitle}>Sair da conta</Text>
+            <Text style={styles.modalText}>
+              Você será redirecionado para a tela de login.
+            </Text>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setConfirmacaoSair(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={async () => {
+                  setConfirmacaoSair(false);
+                  await executarLogout();
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Sair</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <View style={{ height: 50 }} />
 
@@ -487,7 +525,81 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+
   logo: {
     borderRadius: 28,
-  }
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalCard: {
+    width: '85%',
+    backgroundColor: '#1f5751',
+    borderRadius: 22,
+    padding: 22,
+    alignItems: 'center',
+  },
+
+  modalIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#3B0764',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+
+  modalTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+
+  modalText: {
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  modalActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+
+  modalButton: {
+    flex: 1,
+    paddingVertical: 15,
+    borderRadius: 16,
+    marginHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  cancelButton: {
+    backgroundColor: '#DC2626',
+  },
+
+  confirmButton: {
+    backgroundColor: '#3B82F6',
+  },
+
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  confirmButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

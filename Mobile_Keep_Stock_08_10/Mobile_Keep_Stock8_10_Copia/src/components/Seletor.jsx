@@ -21,9 +21,7 @@ export default function Seletor({
   renderCampo,
 }) {
   const [aberto, setAberto] = useState(false);
-
   const selecionada = opcoes.find((opcao) => String(opcao.valor) === String(valor));
-
   return (
     <>
       {renderCampo ? (

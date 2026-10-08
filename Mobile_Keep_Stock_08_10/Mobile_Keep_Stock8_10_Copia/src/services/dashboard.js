@@ -14,6 +14,8 @@ function ordenarPorData(registros, campo) {
   );
 }
 
+
+//dados que são puxados 
 export async function carregarDashboard() {
   const [produtos, pedidos, entradas, saidas, clientes] = await Promise.all([
     produtosCrud.findAll('nome'),
@@ -27,11 +29,13 @@ export async function carregarDashboard() {
   const clientesMap = mapearPorId(clientes, 'id_cliente');
 
   // Produtos que atingiram ou passaram da quantidade mínima
+  //produtos
   const estoqueBaixo = produtos.filter(
     (produto) =>
       (produto.quantidade_atual || 0) <= (produto.quantidade_minima || 0)
   );
 
+  //pedidos
   const pedidosPendentes = pedidos.filter(
     (pedido) =>
       !STATUS_PEDIDO_FINALIZADO.includes(
@@ -39,6 +43,7 @@ export async function carregarDashboard() {
       )
   );
 
+  //produto
   const valorEstoque = produtos.reduce(
     (total, produto) =>
       total +

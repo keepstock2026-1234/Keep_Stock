@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   createNativeStackNavigator,
@@ -14,10 +14,13 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
+import { logout } from '../services/usuarios';
+
 /* TELAS */
 
 
 import LoginScreen from '../../screens/LoginScreen';
+import CadastroScreen from '../../screens/CadastroScreen';
 import HomeScreen from '../../screens/HomeScreen';
 import ProductsScreen from '../../screens/ProductsScreen';
 import PedidosScreen from '../../screens/PedidosScreen';
@@ -27,6 +30,28 @@ import EntryScreen from '../../screens/EntryScreen';
 import ExitScreen from '../../screens/ExitScreen';
 import SettingsScreen from '../../screens/SettingsScreen';
 
+//saida do sistema, limpa a sessão e redireciona para a tela de login
+
+function SairScreen({ navigation }) {
+  //useEffect é utilizado para disparar a função de encerramento de sessão automaticamente
+  //assim que a tela é montada na memória.
+  useEffect(() => {
+    async function sair() {
+      try {
+        await logout();//limpa a sessão do usuário no backend
+      } finally {
+        navigation.reset({
+          index: 0,//limpa o histórico de navegação para que o usuário não possa voltar para a tela anterior
+          routes: [{ name: 'Login' }],//redireciona para a tela de login
+        });
+      }
+    }
+
+    sair();
+  }, [navigation]);
+
+  return null;
+}
 
 /* NAVIGATORS */
 
@@ -269,6 +294,21 @@ function DrawerRoutes() {
           ),
         }}
       />
+
+      <Drawer.Screen
+        name="Sair"
+        component={SairScreen}
+        options={{
+          drawerLabel: 'Sair',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons
+              name="log-out-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -289,6 +329,13 @@ export default function Routes() {
       <Stack.Screen
         name="Login"
         component={LoginScreen}
+      />
+
+      {/* CADASTRO */}
+
+      <Stack.Screen
+        name="Cadastro"
+        component={CadastroScreen}
       />
 
       {/* APP */}

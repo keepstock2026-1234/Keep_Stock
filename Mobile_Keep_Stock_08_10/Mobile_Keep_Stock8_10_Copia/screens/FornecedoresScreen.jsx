@@ -25,10 +25,10 @@ import {
 // Mesmos campos do formulário de fornecedores do sistema web
 const CAMPOS = [
   { nome: 'nome', rotulo: 'Nome', tipo: 'texto' },
-  { nome: 'cnpj', rotulo: 'CNPJ', tipo: 'texto', exemplo: '00.000.000/0000-00' },
-  { nome: 'telefone', rotulo: 'Telefone', tipo: 'texto', exemplo: '(00) 00000-0000' },
+  { nome: 'cnpj', rotulo: 'CNPJ', tipo: 'numero', exemplo: '00.000.000/0000-00' },
+  { nome: 'telefone', rotulo: 'Telefone', tipo: 'numero', exemplo: '(00) 00000-0000' },
   { nome: 'email', rotulo: 'E-mail', tipo: 'texto' },
-  { nome: 'cep', rotulo: 'CEP', tipo: 'texto', exemplo: '00000-000' },
+  { nome: 'cep', rotulo: 'CEP', tipo: 'numero', exemplo: '00000-000' },
 ];
 
 export default function FornecedoresScreen() {

@@ -11,9 +11,10 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-
 import { carregarDashboard } from '../src/services/dashboard';
 
+
+//define inicialmente 0 para que depois os dados sejam puxados e atualizados
 export default function HomeScreen({ navigation }) {
   const [dados, setDados] = useState({
     totalProdutos: 0,
@@ -23,7 +24,8 @@ export default function HomeScreen({ navigation }) {
     produtosMap: {},
   });
 
-  // Recarrega ao abrir a tela, para refletir as entradas e saídas registradas
+
+  // Recarrega os dados ao abrir a tela
   useFocusEffect(
     useCallback(() => {
       async function carregar() {
@@ -33,12 +35,13 @@ export default function HomeScreen({ navigation }) {
           console.log(`Erro ao carregar o dashboard: ${erro.message}`);
         }
       }
-
       carregar();
     }, [])
   );
 
-  // Junta entradas e saídas em uma lista única de atividades recentes
+
+  // Junta entradas e saídas em uma lista
+  // aparece no histórico
   const atividades = [
     ...dados.entradas.map((entrada) => ({
       id: `entrada-${entrada.id_entrada}`,
@@ -54,10 +57,16 @@ export default function HomeScreen({ navigation }) {
     })),
   ];
 
+
+
+
+
   return (
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}>
+
+
       {/* HEADER */}
 
       <View style={styles.header}>
@@ -65,17 +74,14 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.welcome}>
             Bem-vindo
           </Text>
-
           <Text style={styles.userName}>
             Keep Stock 
           </Text>
         </View>
-
         <Image
           source={require('../assets/image/Keep.jpg')} 
           style={styles.logo}
         />
-
         <TouchableOpacity style={styles.notification}>
           <Ionicons
             name="notifications-outline"
@@ -85,6 +91,9 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+
+
+
       {/* DASHBOARD */}
 
       <View style={styles.balanceCard}>
@@ -92,41 +101,37 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.balanceLabel}>
             Produtos em Estoque
           </Text>
-
           <Text style={styles.balanceLabel}>
             Produtos com estoque baixo
           </Text>
         </View>
         
+        {/* Aqui a quant. de produto é puxado*/}
         <View style={styles.cardalign}>
           <Text style={styles.balanceValue}>
             {dados.totalProdutos}
           </Text>
-
+        {/* Aqui a quant. de produto com estoque baixo é puxado*/}
           <Text style={styles.redValue}>
             {dados.totalEstoqueBaixo}
           </Text>
         </View>
         
-
         <View style={styles.balanceFooterUp}>
           <Ionicons
             name="trending-up"
             size={18}
             color="#22C55E"
           />
-
           <Text style={styles.balanceGrowth}>
             +12% este mes
           </Text>
-
           <View style={styles.balanceFooterdown}>
             <Ionicons
               name="trending-down"
               size={18}
               color="#EF4444"
             />
-
             <Text style={styles.balanceGrowth}>
               -5% este mes
             </Text>
@@ -151,16 +156,16 @@ export default function HomeScreen({ navigation }) {
             />
           </View>
 
+          {/* Aqui a quant. de produto é puxado*/}
           <Text style={styles.cardNumber}>
             {dados.totalProdutos}
           </Text>
-
           <Text style={styles.cardLabel}>
             Produtos
           </Text>
         </View>
-
         <View style={styles.smallCard}>
+
           <View style={styles.iconRed}>
             <Ionicons
               name="alert-circle"
@@ -168,11 +173,10 @@ export default function HomeScreen({ navigation }) {
               color="#EF4444"
             />
           </View>
-
+          {/* Aqui a quant. de produto com estoque baixo é puxado*/}
           <Text style={styles.cardNumber}>
             {dados.totalEstoqueBaixo}
           </Text>
-
           <Text style={styles.cardLabel}>
             Estoque Baixo
           </Text>
@@ -201,13 +205,11 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.buttonTitle}>
               Entrada de Estoque
             </Text>
-
             <Text style={styles.buttonSubtitle}>
               Registrar novos produtos
             </Text>
           </View>
         </View>
-
         <Ionicons
           name="chevron-forward"
           size={22}
@@ -227,18 +229,15 @@ export default function HomeScreen({ navigation }) {
             size={26}
             color="#fff"
           />
-
           <View>
             <Text style={styles.buttonTitle}>
-              SaÃ­da de Estoque
+              Saída de Estoque
             </Text>
-
             <Text style={styles.buttonSubtitle}>
               Registrar retirada de produtos
             </Text>
           </View>
         </View>
-
         <Ionicons
           name="chevron-forward"
           size={22}
@@ -246,12 +245,16 @@ export default function HomeScreen({ navigation }) {
         />
       </TouchableOpacity>
          
+
+
+
+
+
       {/* ATIVIDADES */}
 
       <Text style={styles.sectionTitle}>
         Atividades Recentes
       </Text>
-
       {atividades.map((atividade) => (
         <View
           key={atividade.id}
@@ -277,11 +280,15 @@ export default function HomeScreen({ navigation }) {
           </Text>
         </View>
       ))}
-
       <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
+
+
+
+
+
 
 export const styles = StyleSheet.create({
   container: {

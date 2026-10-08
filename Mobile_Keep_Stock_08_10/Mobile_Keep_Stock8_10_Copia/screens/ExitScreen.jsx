@@ -13,8 +13,7 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-
-import QRCodeScannerModal from '../src/components/QRCodeScannerModal';
+import QRCodeScannerModal from '../src/components/QRCodeScannerModal'; // Componente para escanear QR Codes
 import Seletor from '../src/components/Seletor';
 import { listarClientes } from '../src/services/clientes';
 import { buscarProdutoPorCodigo, listarProdutos } from '../src/services/produtos';
@@ -31,31 +30,30 @@ export default function ExitScreen() {
   const [salvando, setSalvando] = useState(false);
   const [scannerAberto, setScannerAberto] = useState(false);
 
-  // Disparada assim que o QR Code é lido pela câmera
+
+
+  // busca de produto por QR Code 
   async function lerQRCode(codigo) {
     setScannerAberto(false);
-
     try {
       const encontrado = await buscarProdutoPorCodigo(codigo);
-
       if (!encontrado) {
         Alert.alert('Erro', 'Produto não encontrado no banco.');
         return;
       }
-
       setIdProduto(encontrado.id_produto);
     } catch (erro) {
       Alert.alert('Erro', erro.message);
     }
   }
 
+  // Carrega produtos e clientes ao abrir o formulario
   const carregar = useCallback(async () => {
     try {
       const [listaProdutos, listaClientes] = await Promise.all([
         listarProdutos(),
         listarClientes(),
       ]);
-
       setProdutos(listaProdutos);
       setClientes(listaClientes);
     } catch (erro) {
@@ -63,6 +61,7 @@ export default function ExitScreen() {
     }
   }, []);
 
+  // Atualiza os dados sempre que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       carregar();
@@ -72,24 +71,23 @@ export default function ExitScreen() {
   const produto = produtos.find(
     (item) => String(item.id_produto) === String(idProduto)
   );
-
   const cliente = clientes.find(
     (item) => String(item.id_cliente) === String(idCliente)
   );
-
   const currentStock = produto ? produto.quantidade_atual || 0 : 0;
-
+  {/*Verifica se o produto foi selecionado */}
   async function confirmarSaida() {
     if (!produto) {
       Alert.alert('Selecione o produto', 'Toque no campo Produto para escolher.');
       return;
     }
 
+    {/*Salva info. e da print */}
+
     setSalvando(true);
 
     try {
       const usuario = await usuarioLogado();
-
       await salvarSaida({
         id_produto: produto.id_produto,
         quantidade: quantity,
@@ -102,7 +100,6 @@ export default function ExitScreen() {
         'Saída registrada',
         `${quantity} un. de ${produto.nome} retiradas do estoque.`
       );
-
       setQuantity('');
       await carregar();
     } catch (erro) {
@@ -111,6 +108,9 @@ export default function ExitScreen() {
       setSalvando(false);
     }
   }
+
+
+
 
   return (
     <ScrollView style={styles.container}>
@@ -127,16 +127,17 @@ export default function ExitScreen() {
           size={28}
           color="#fff"
         />
-
         <Text style={styles.qrText}>
           Escanear Produto
         </Text>
       </TouchableOpacity>
 
+
+    {/*Produto */}
       <Text style={styles.label}>
         Produto
       </Text>
-
+      {/* habilita o seletor de produtos */}
       <Seletor
         valor={idProduto}
         opcoes={produtos.map((item) => ({
@@ -171,10 +172,11 @@ export default function ExitScreen() {
         )}
       />
 
+
+        {/*Saida */}
       <Text style={styles.label}>
         Saída
       </Text>
-
       <TextInput
         style={styles.input}
         placeholder="Digite a quantidade"
@@ -183,11 +185,9 @@ export default function ExitScreen() {
         value={quantity}
         onChangeText={setQuantity}
       />
-
       <Text style={styles.label}>
         Tipo de saída
       </Text>
-
       <TextInput
         style={styles.input}
         placeholder="Venda, perda, transferência..."
@@ -196,10 +196,14 @@ export default function ExitScreen() {
         onChangeText={setTipoSaida}
       />
 
+
+
+        {/*Cliente */}
+
       <Text style={styles.label}>
         Cliente
       </Text>
-
+      {/*Seleciona o cliente */}
       <Seletor
         valor={idCliente}
         opcoes={clientes.map((item) => ({
@@ -216,7 +220,6 @@ export default function ExitScreen() {
             <Text style={styles.seletorTexto}>
               {cliente ? cliente.nome : 'Opcional'}
             </Text>
-
             <Ionicons
               name="chevron-down"
               size={22}
@@ -226,16 +229,19 @@ export default function ExitScreen() {
         )}
       />
 
+
+
       <View style={styles.resultCard}>
         <Text style={styles.resultText}>
           Estoque Restante
         </Text>
-
         <Text style={styles.resultValue}>
           {currentStock -
             Number(quantity || 0)}
         </Text>
       </View>
+
+
 
       <TouchableOpacity
         style={styles.confirmButton}
@@ -269,6 +275,9 @@ export default function ExitScreen() {
     </ScrollView>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {

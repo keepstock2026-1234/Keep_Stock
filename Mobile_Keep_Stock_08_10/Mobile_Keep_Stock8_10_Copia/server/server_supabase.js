@@ -6,6 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+//conexão com o banco de dados MySQL
 SUPABASE_URL = "https://gysiqyxpmlxmlolqzaqs.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5c2lxeXhwbWx4bWxvbHF6YXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA3MDYsImV4cCI6MjA5MDUzNjcwNn0.Rst-gDutHxMCXUxGP2HYgRSnsUhip7tAevtsE9sWh4A"
 
